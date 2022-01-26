@@ -3,12 +3,12 @@ pragma solidity >=0.8.0;
 
 /// ============ Imports ============
 
-import { MerkleClaimERC20Test } from "./utils/MerkleClaimERC20Test.sol"; // Test scaffolding
+import { AphraTokenTest } from "./utils/AphraTokenTest.sol"; // Test scaffolding
 
 /// @title Tests
 /// @notice MerkleClaimERC20 tests
 /// @author Anish Agnihotri <contact@anishagnihotri.com>
-contract Tests is MerkleClaimERC20Test {
+contract Tests is AphraTokenTest {
   /// @notice Allow Alice to claim 100e18 tokens
   function testAliceClaim() public {
     // Setup correct proof for Alice
@@ -138,4 +138,7 @@ contract Tests is MerkleClaimERC20Test {
     // Assert Alice balance before + 100 tokens = after balance
     assertEq(alicePostBalance, alicePreBalance + 100e18);
   }
+
+  /// @notice Let the minter mint
+
 }

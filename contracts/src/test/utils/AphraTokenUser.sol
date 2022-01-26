@@ -3,23 +3,23 @@ pragma solidity >=0.8.0;
 
 /// ============ Imports ============
 
-import { MerkleClaimERC20 } from "../../MerkleClaimERC20.sol"; // MerkleClaimERC20
+import { AphraToken } from "../../AphraToken.sol";
 
 /// @title MerkleClaimERC20User
 /// @notice Mock MerkleClaimERC20 user
 /// @author Anish Agnihotri <contact@anishagnihotri.com>
-contract MerkleClaimERC20User {
+contract AphraTokenUser {
 
   /// ============ Immutable storage ============
 
   /// @dev MerkleClaimERC20 contract
-  MerkleClaimERC20 immutable internal TOKEN;
+  AphraToken immutable internal TOKEN;
 
   /// ============ Constructor ============
 
   /// @notice Creates a new MerkleClaimERC20User
   /// @param _TOKEN MerkleClaimERC20 contract
-  constructor(MerkleClaimERC20 _TOKEN) {
+  constructor(AphraToken _TOKEN) {
     TOKEN = _TOKEN;
   }
 
