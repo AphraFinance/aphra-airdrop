@@ -25,13 +25,13 @@ export default function Home() {
         </div>
 
         {/* Project introduction article, if it exists */}
-        {process.env.NEXT_PUBLIC_ARTICLE ? (
+        {process.env.NEXT_PUBLIC_DISCORD ? (
           <a
-            href={process.env.NEXT_PUBLIC_ARTICLE}
+            href={process.env.NEXT_PUBLIC_DISCORD}
             target="_blank"
             rel="noopener noreferrer"
           >
-            Introducing {tokenName}{" "}
+            Join the {tokenName}{" "} Discord
             <Image src="/icons/arrow.svg" alt="Arrow" height={12} width={12} />
           </a>
         ) : null}

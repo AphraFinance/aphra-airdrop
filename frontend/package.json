@@ -5,18 +5,22 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "export": "next build && next export -o dist",
+    "deploy": "npm run export && npx surge --domain aphra-drop.surge.sh dist",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "bnc-onboard": "^1.37.0",
     "ethers": "^5.5.2",
+    "global": "^4.4.0",
     "keccak256": "^1.0.6",
     "merkletreejs": "^0.2.27",
     "next": "12.0.7",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "sass": "^1.45.1",
+    "surge": "^0.23.1",
     "unstated-next": "^1.1.0"
   },
   "devDependencies": {

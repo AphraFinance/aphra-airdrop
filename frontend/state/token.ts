@@ -143,8 +143,14 @@ function useToken() {
 
       // Collect claimed status for address, if part of airdrop (tokens > 0)
       if (tokens > 0) {
-        const claimed = await getClaimedStatus(address);
-        setAlreadyClaimed(claimed);
+        try {
+          const claimed = await getClaimedStatus(address);
+          setAlreadyClaimed(claimed);
+        }catch(e) {
+          setAlreadyClaimed(false);
+        }
+
+
       }
     }
 

@@ -14,11 +14,6 @@ const actionMenuLinks: {
   url: string | undefined;
 }[] = [
   {
-    name: "About",
-    icon: "/icons/info.svg",
-    url: process.env.NEXT_PUBLIC_ARTICLE,
-  },
-  {
     name: "Discord",
     icon: "/icons/discord.svg",
     url: process.env.NEXT_PUBLIC_DISCORD,
