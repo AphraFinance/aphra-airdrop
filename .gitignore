@@ -4,7 +4,7 @@
 # Contracts
 contracts/cache
 contracts/out
-
+contracts/lib
 # Generator
 generator/node_modules
 generator/dist
