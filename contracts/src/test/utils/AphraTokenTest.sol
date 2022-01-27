@@ -28,7 +28,7 @@ contract AphraTokenTest is DSTest {
     TOKEN = new AphraToken(
       // Merkle root containing ALICE with 100e18 tokens but no BOB
       0xd0aa6a4e5b4e13462921d7518eebdb7b297a7877d6cfe078b0c318827392fb55,
-      msg.sender, //minter
+      address(this), //minter
       1674777600
     );
 

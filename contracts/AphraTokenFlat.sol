@@ -1,6 +1,66 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-pragma solidity >=0.8.10;
+pragma solidity >=0.8.4;
+
+// OpenZeppelin Contracts v4.4.1 (utils/cryptography/MerkleProof.sol)
+
+
+
+/**
+ * @dev These functions deal with verification of Merkle Trees proofs.
+ *
+ * The proofs can be generated using the JavaScript library
+ * https://github.com/miguelmota/merkletreejs[merkletreejs].
+ * Note: the hashing algorithm should be keccak256 and pair sorting should be enabled.
+ *
+ * See `test/utils/cryptography/MerkleProof.test.js` for some examples.
+ */
+library MerkleProof {
+    /**
+     * @dev Returns true if a `leaf` can be proved to be a part of a Merkle tree
+     * defined by `root`. For this, a `proof` must be provided, containing
+     * sibling hashes on the branch from the leaf to the root of the tree. Each
+     * pair of leaves and each pair of pre-images are assumed to be sorted.
+     */
+    function verify(
+        bytes32[] memory proof,
+        bytes32 root,
+        bytes32 leaf
+    ) internal pure returns (bool) {
+        return processProof(proof, leaf) == root;
+    }
+
+    /**
+     * @dev Returns the rebuilt hash obtained by traversing a Merklee tree up
+     * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
+     * hash matches the root of the tree. When processing the proof, the pairs
+     * of leafs & pre-images are assumed to be sorted.
+     *
+     * _Available since v4.4._
+     */
+    function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
+        bytes32 computedHash = leaf;
+        for (uint256 i = 0; i < proof.length; i++) {
+            bytes32 proofElement = proof[i];
+            if (computedHash <= proofElement) {
+                // Hash(current computed hash + current element of the proof)
+                computedHash = _efficientHash(computedHash, proofElement);
+            } else {
+                // Hash(current element of the proof + current computed hash)
+                computedHash = _efficientHash(proofElement, computedHash);
+            }
+        }
+        return computedHash;
+    }
+
+    function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
+        assembly {
+            mstore(0x00, a)
+            mstore(0x20, b)
+            value := keccak256(0x00, 0x40)
+        }
+    }
+} // OZ: MerkleProof
 
 /// @notice Modern and gas-optimized ERC-20 + EIP-2612 implementation with COMP-style governance
 /// @author Modified from Solmate (https://raw.githubusercontent.com/lexDAO/Kali/main/contracts/KaliDAOtoken.sol)
@@ -410,3 +470,82 @@ abstract contract DAOToken {
         return uint96(x);
     }
 }
+
+contract AphraToken is DAOToken {
+
+    /// ============ Immutable storage ============
+
+    bytes32 public immutable merkleRoot;
+
+    /// ============ Mutable storage ============
+
+    mapping(address => bool) public hasClaimed;
+
+    address public minter;
+
+    uint256 public mintingAllowedAfter;
+
+    uint32 public constant minimumTimeBetweenMints = 1 days * 365;
+
+    uint8 public constant mintCap = 3;
+
+    /// ============ Errors ============
+    error NotMinter();
+    error NoMintYet();
+    error MintCapExceeded();
+
+    error AlreadyClaimed();
+    error NotInMerkle();
+
+    event MinterChanged(address indexed minter, address indexed newMinter);
+    event Claim(address indexed to, uint256 amount);
+
+    constructor(bytes32 merkleRoot_,
+                address minter_,
+                uint256 mintingAllowedAfter_
+    ) {
+        _init("APHRA DAO", "APHRA");
+        merkleRoot = merkleRoot_;
+        minter = minter_;
+        mintingAllowedAfter = mintingAllowedAfter_;
+        emit MinterChanged(address(0), minter);
+    }
+
+    function setMinter(address newMinter_) external {
+        if (msg.sender != minter) revert NotMinter();
+        minter = newMinter_;
+        emit MinterChanged(newMinter_, minter);
+    }
+
+    function mint(address to, uint256 rawAmount) external {
+        if (msg.sender != minter) revert NotMinter();
+        if (block.timestamp <= mintingAllowedAfter) revert NoMintYet();
+        // record the mint
+        mintingAllowedAfter = block.timestamp + minimumTimeBetweenMints;
+
+        // mint the amount
+        if (rawAmount > ((totalSupply * mintCap) / 100)) revert MintCapExceeded();
+        // mint the amount
+        _mint(minter, rawAmount);
+    }
+
+    function claim(address to, uint256 amount, bytes32[] calldata proof) external {
+        // Throw if address has already claimed tokens
+        if (hasClaimed[to]) revert AlreadyClaimed();
+
+        // Verify merkle proof, or revert if not in tree
+        bytes32 leaf = keccak256(abi.encodePacked(to, amount));
+        bool isValidLeaf = MerkleProof.verify(proof, merkleRoot, leaf);
+        if (!isValidLeaf) revert NotInMerkle();
+
+        // Set address to claimed
+        hasClaimed[to] = true;
+
+        // Mint tokens to address
+        _mint(to, amount);
+
+        // Emit claim event
+        emit Claim(to, amount);
+    }
+}
+

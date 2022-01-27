@@ -1,0 +1,12 @@
+[default]
+src = 'src'
+out = 'out'
+solc = '0.8.10'
+libs = ['lib']
+remappings = [
+    '@openzeppelin/=lib/openzeppelin-contracts/contracts/',
+    '@solmate/=lib/solmate/src/',
+    'ds-test/=lib/ds-test/src/',
+]
+
+# See more config options https://github.com/gakonst/foundry/tree/master/config
