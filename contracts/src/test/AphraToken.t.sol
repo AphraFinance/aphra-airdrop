@@ -217,7 +217,6 @@ contract Tests is AphraTokenTest {
 
     // Collect Alice balance of tokens before claim
     uint256 minterPreBalance = TOKEN.balanceOf(address(this));
-    console.log(TOKEN.totalSupply());
     vm.warp(TOKEN.mintingAllowedAfter() + 1);
     TOKEN.mint(uint256(2e18));
 
@@ -246,10 +245,12 @@ contract Tests is AphraTokenTest {
 
     // Collect Alice balance of tokens before claim
     uint256 minterPreBalance = TOKEN.balanceOf(address(this));
+    uint256 availableToMint = (TOKEN.totalSupply() * TOKEN.mintCap()) / 100;
+    uint256 attemptToMint = 5e18;
     vm.warp(TOKEN.mintingAllowedAfter() + 1);
-    vm.expectRevert(abi.encodeWithSignature("MintCapExceeded(uint256)", 5e18));
+    vm.expectRevert(abi.encodePacked(abi.encodeWithSignature("MintCapExceeded(uint256,uint256)", availableToMint, attemptToMint)));
 
-    TOKEN.mint(uint256(5e18));
+    TOKEN.mint(attemptToMint);
 
     uint256 minterPostBalance = TOKEN.balanceOf(address(this));
 
@@ -265,20 +266,14 @@ contract Tests is AphraTokenTest {
     // Collect Alice balance of tokens before claim
 
     uint256 minterPreBalance = TOKEN.balanceOf(TOKEN.minter());
-    console.logString("Minter Before");
-    console.logAddress(TOKEN.minter());
-    console.logString("Sender Before");
-    console.logAddress(address(this));
     TOKEN.setMinter(address(BOB)); //set bob as the minter
     vm.startPrank(address(BOB), address(BOB)); //become bob
-
-    vm.expectRevert(abi.encodeWithSignature("MintCapExceeded(uint256)", 5e18));
-    TOKEN.mint(uint256(5e18));
+    uint256 availableToMint = (TOKEN.totalSupply() * TOKEN.mintCap()) / 100;
+    uint256 attemptToMint = 5e18;
+    vm.expectRevert(abi.encodeWithSignature("MintCapExceeded(uint256,uint256)", availableToMint, attemptToMint));
+    TOKEN.mint(attemptToMint);
     uint256 minterPostBalance = TOKEN.balanceOf(TOKEN.minter());
-
     vm.stopPrank();
-
-
     assertEq(minterPostBalance, minterPreBalance);
   }
 

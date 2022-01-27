@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-import {console} from "./test/console.sol";
 pragma solidity >=0.8.10;
 
 import { MerkleProof } from "@openzeppelin/utils/cryptography/MerkleProof.sol"; // OZ: MerkleProof
@@ -58,9 +57,9 @@ contract AphraToken is DAOToken {
         if (block.timestamp <= mintingAllowedAfter) revert NoMintYet();
         // record the mint
         mintingAllowedAfter = block.timestamp + minimumTimeBetweenMints;
-
+        uint256 mintableBalance = ((totalSupply * mintCap) / 100);
         // mint the amount
-        if (rawAmount > ((totalSupply * mintCap) / 100)) revert MintCapExceeded(((totalSupply * mintCap) / 100), rawAmount);
+        if (rawAmount > mintableBalance) revert MintCapExceeded(mintableBalance, rawAmount);
         // mint the amount
         _mint(minter, rawAmount);
     }
